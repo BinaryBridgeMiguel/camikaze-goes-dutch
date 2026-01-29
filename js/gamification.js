@@ -16,13 +16,13 @@ const gamification = {
     },
     
     // Initialize gamification displays
-    init() {
-        this.updateAllDisplays();
+    async init() {
+        await this.updateAllDisplays();
     },
     
     // Update all UI displays
-    updateAllDisplays() {
-        const data = storage.load();
+    async updateAllDisplays() {
+        const data = await storage.load();
         this.updateHeader(data);
         this.updateXPBar(data);
         this.updateStats(data);
@@ -84,8 +84,8 @@ const gamification = {
     },
     
     // Award XP with animation
-    awardXP(amount, reason = '') {
-        const { data, leveledUp } = storage.addXP(amount);
+    async awardXP(amount, reason = '') {
+        const { data, leveledUp } = await storage.addXP(amount);
         
         // Show XP toast
         this.showXPToast(amount, reason);
@@ -101,7 +101,7 @@ const gamification = {
         }
         
         // Check achievements
-        const newAchievements = storage.checkAchievements();
+        const newAchievements = await storage.checkAchievements();
         newAchievements.forEach(achievement => {
             this.showAchievementUnlocked(achievement);
         });

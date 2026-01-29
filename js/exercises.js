@@ -22,7 +22,7 @@ const exercises = {
     },
     
     // Start a lesson
-    startLesson(themeId) {
+    async startLesson(themeId) {
         this.currentLesson = themeId;
         this.currentExerciseIndex = 0;
         this.results = [];
@@ -33,7 +33,7 @@ const exercises = {
         this.exercises = this.generateExercises(themeId);
         
         // Update streak
-        storage.updateStreak();
+        await storage.updateStreak();
         
         // Show lesson screen
         app.showScreen('lesson-screen');
@@ -478,7 +478,7 @@ const exercises = {
     },
     
     // Handle answer result
-    handleAnswer(isCorrect, correctAnswer) {
+    async handleAnswer(isCorrect, correctAnswer) {
         const exercise = this.exercises[this.currentExerciseIndex];
         
         // Record result
@@ -488,7 +488,7 @@ const exercises = {
             answer: correctAnswer
         });
         
-        // Update storage
+        // Update storage (don't await - let it happen in background)
         storage.recordExercise(
             this.currentLesson,
             exercise.type,
@@ -510,7 +510,7 @@ const exercises = {
             }
         } else {
             // Award XP
-            gamification.awardXP(gamification.XP_REWARDS.correctAnswer);
+            await gamification.awardXP(gamification.XP_REWARDS.correctAnswer);
         }
         
         // Show feedback
@@ -575,7 +575,7 @@ const exercises = {
     },
     
     // Finish lesson
-    finishLesson() {
+    async finishLesson() {
         const correctCount = this.results.filter(r => r.correct).length;
         const totalCount = this.results.length;
         const accuracy = Math.round((correctCount / totalCount) * 100);
@@ -583,10 +583,10 @@ const exercises = {
         
         // Calculate bonus XP
         const bonusXP = gamification.calculateLessonBonus(correctCount, totalCount, timeSeconds);
-        gamification.awardXP(bonusXP, 'Leçon terminée!');
+        await gamification.awardXP(bonusXP, 'Leçon terminée!');
         
         // Update theme progress
-        storage.completeLesson(this.currentLesson, accuracy);
+        await storage.completeLesson(this.currentLesson, accuracy);
         
         // Show results
         app.showResults({
@@ -610,13 +610,13 @@ const exercises = {
     },
     
     // Start practice mode
-    startPractice(mode) {
+    async startPractice(mode) {
         let exercisesToUse = [];
         
         switch (mode) {
             case 'weak':
                 // Get weak points and generate exercises
-                const weakPoints = storage.getWeakPoints();
+                const weakPoints = await storage.getWeakPoints();
                 if (weakPoints.length > 0) {
                     // Use weak themes
                     const weakThemes = [...new Set(weakPoints.map(w => w.theme))];

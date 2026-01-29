@@ -114,11 +114,39 @@ python3 -m http.server 8000
    - Drag the entire `camikaze-goes-dutch` folder
    - Done! 🎉
 
+## ☁️ Supabase Cloud Storage
+
+Progress is stored in Supabase for cross-device sync, with localStorage fallback for offline mode.
+
+### Database Setup
+
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Copy and paste the contents of `supabase-schema.sql`
+4. Click **Run** to create all tables
+
+### Features
+- 🔄 **Cross-device sync** - Start on phone, continue on laptop
+- 📴 **Offline support** - Works without internet, syncs when back online
+- 🔐 **Simple auth** - Pre-configured for Camille (no login needed)
+- 📊 **Exercise history** - Tracks weak points across sessions
+
+### Tables Created
+- `camikaze_users` - User accounts
+- `camikaze_progress` - XP, levels, streaks
+- `camikaze_theme_progress` - Progress per theme
+- `camikaze_exercise_history` - For weak point detection
+- `camikaze_flashcards` - Spaced repetition data
+- `camikaze_achievements` - Unlocked badges
+
 ## 📁 Project Structure
 
 ```
 camikaze-goes-dutch/
 ├── index.html          # Main HTML file
+├── manifest.json       # PWA manifest
+├── service-worker.js   # Offline caching
+├── supabase-schema.sql # Database schema
 ├── css/
 │   └── style.css       # All styles (cute & playful design)
 ├── js/
@@ -126,9 +154,11 @@ camikaze-goes-dutch/
 │   ├── exercises.js    # Exercise engine
 │   ├── flashcards.js   # Flashcard system
 │   ├── gamification.js # XP, levels, achievements
-│   └── storage.js      # localStorage handling
+│   └── storage.js      # Supabase + localStorage
 ├── data/
 │   └── lessons.js      # All vocabulary and exercises
+├── assets/
+│   └── icons/          # PWA icons (72-512px)
 └── README.md           # This file!
 ```
 

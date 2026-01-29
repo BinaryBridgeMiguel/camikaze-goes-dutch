@@ -171,7 +171,8 @@ const flashcards = {
     },
     
     // Get cards due for review (for dashboard indicator)
-    getDueCount(themeId = null) {
-        return storage.getDueFlashcards(themeId).length;
+    async getDueCount(themeId = null) {
+        const dueCards = await storage.getDueFlashcards(themeId);
+        return dueCards.length;
     }
 };

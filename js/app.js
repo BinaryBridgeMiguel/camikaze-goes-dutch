@@ -16,11 +16,11 @@ const app = {
         await storage.updateStreak();
         
         // Initialize displays
-        gamification.init();
+        await gamification.init();
         
         // Render themes
-        this.renderThemes();
-        this.renderFlashcardThemes();
+        await this.renderThemes();
+        await this.renderFlashcardThemes();
         
         // Load voices for TTS
         if ('speechSynthesis' in window) {
@@ -28,6 +28,11 @@ const app = {
         }
         
         console.log('🇳🇱 Camikaze Goes Dutch initialized!');
+        
+        // Show connection status
+        if (!navigator.onLine) {
+            gamification.showToast('info', '📴', 'Mode hors-ligne activé');
+        }
     },
     
     // Start the app (from splash screen)
@@ -54,6 +59,7 @@ const app = {
         if (screenId === 'dashboard') {
             gamification.updateAllDisplays();
             this.renderThemes();
+            this.renderFlashcardThemes();
         }
     },
     
@@ -73,11 +79,11 @@ const app = {
     },
     
     // Render theme cards
-    renderThemes() {
+    async renderThemes() {
         const grid = document.getElementById('theme-grid');
         if (!grid) return;
         
-        const data = storage.load();
+        const data = await storage.load();
         
         grid.innerHTML = THEMES.map(theme => {
             const progress = data.themeProgress[theme.id] || 0;
@@ -100,12 +106,13 @@ const app = {
     },
     
     // Render flashcard theme selection
-    renderFlashcardThemes() {
+    async renderFlashcardThemes() {
         const grid = document.getElementById('flashcard-themes');
         if (!grid) return;
         
-        grid.innerHTML = THEMES.map(theme => {
-            const dueCount = flashcards.getDueCount(theme.id);
+        // Build HTML with async due counts
+        const themeCards = await Promise.all(THEMES.map(async theme => {
+            const dueCount = await flashcards.getDueCount(theme.id);
             
             return `
                 <div class="theme-card" onclick="flashcards.start('${theme.id}')">
@@ -114,7 +121,9 @@ const app = {
                     <span class="theme-name">${theme.name}</span>
                 </div>
             `;
-        }).join('');
+        }));
+        
+        grid.innerHTML = themeCards.join('');
     },
     
     // Start a theme lesson
