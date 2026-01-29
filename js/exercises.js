@@ -479,41 +479,48 @@ const exercises = {
     
     // Handle answer result
     async handleAnswer(isCorrect, correctAnswer) {
-        const exercise = this.exercises[this.currentExerciseIndex];
-        
-        // Record result
-        this.results.push({
-            exercise: this.currentExerciseIndex,
-            correct: isCorrect,
-            answer: correctAnswer
-        });
-        
-        // Update storage (don't await - let it happen in background)
-        storage.recordExercise(
-            this.currentLesson,
-            exercise.type,
-            isCorrect,
-            exercise.prompt || exercise.sentence || ''
-        );
-        
-        // Play sound
-        gamification.playSound(isCorrect ? 'correct' : 'incorrect');
-        
-        // Update hearts if wrong
-        if (!isCorrect) {
-            this.hearts--;
-            this.updateHearts();
+        try {
+            const exercise = this.exercises[this.currentExerciseIndex];
             
-            if (this.hearts <= 0) {
-                // Game over - but let them continue (no strict fail)
-                // Just show encouragement
+            // Record result
+            this.results.push({
+                exercise: this.currentExerciseIndex,
+                correct: isCorrect,
+                answer: correctAnswer
+            });
+            
+            // Update storage (don't await - let it happen in background)
+            storage.recordExercise(
+                this.currentLesson,
+                exercise.type,
+                isCorrect,
+                exercise.prompt || exercise.sentence || ''
+            ).catch(e => console.warn('Failed to record exercise:', e));
+            
+            // Play sound
+            try {
+                gamification.playSound(isCorrect ? 'correct' : 'incorrect');
+            } catch (e) {
+                console.warn('Sound failed:', e);
             }
-        } else {
-            // Award XP
-            await gamification.awardXP(gamification.XP_REWARDS.correctAnswer);
+            
+            // Update hearts if wrong
+            if (!isCorrect) {
+                this.hearts--;
+                this.updateHearts();
+            } else {
+                // Award XP
+                try {
+                    await gamification.awardXP(gamification.XP_REWARDS.correctAnswer);
+                } catch (e) {
+                    console.warn('XP award failed:', e);
+                }
+            }
+        } catch (e) {
+            console.error('handleAnswer error:', e);
         }
         
-        // Show feedback
+        // ALWAYS show feedback
         this.showFeedback(isCorrect, correctAnswer);
     },
     
