@@ -526,10 +526,24 @@ const exercises = {
     
     // Show feedback panel
     showFeedback(isCorrect, correctAnswer) {
+        console.log('showFeedback called:', isCorrect, correctAnswer);
+        
         const feedbackContainer = document.getElementById('feedback-container');
         const feedbackContent = document.getElementById('feedback-content');
         
-        const encouragement = gamification.getEncouragement(isCorrect);
+        if (!feedbackContainer || !feedbackContent) {
+            console.error('Feedback elements not found!');
+            // Auto-advance if feedback can't show
+            setTimeout(() => this.nextExercise(), 1000);
+            return;
+        }
+        
+        let encouragement = 'Bien!';
+        try {
+            encouragement = gamification.getEncouragement(isCorrect);
+        } catch (e) {
+            console.warn('getEncouragement failed:', e);
+        }
         
         feedbackContent.className = `feedback-content ${isCorrect ? 'correct' : 'incorrect'}`;
         feedbackContent.innerHTML = `
@@ -543,8 +557,13 @@ const exercises = {
             ` : ''}
         `;
         
+        // Force show the feedback panel
+        feedbackContainer.style.display = 'block';
+        feedbackContainer.style.transform = 'translateY(0)';
         feedbackContainer.classList.remove('hidden');
         feedbackContainer.classList.add('visible');
+        
+        console.log('Feedback panel should be visible now');
     },
     
     // Go to next exercise
