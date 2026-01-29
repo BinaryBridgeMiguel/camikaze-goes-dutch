@@ -3,7 +3,7 @@
 // Offline support for PWA
 // ==========================================
 
-const CACHE_NAME = 'camikaze-dutch-v1';
+const CACHE_NAME = 'camikaze-dutch-v2';
 const OFFLINE_URL = '/index.html';
 
 // Files to cache for offline use
