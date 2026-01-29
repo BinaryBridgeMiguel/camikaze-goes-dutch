@@ -571,6 +571,9 @@ const exercises = {
         const feedbackContainer = document.getElementById('feedback-container');
         feedbackContainer.classList.remove('visible');
         feedbackContainer.classList.add('hidden');
+        // Reset inline styles that showFeedback() sets
+        feedbackContainer.style.display = '';
+        feedbackContainer.style.transform = '';
         
         this.currentExerciseIndex++;
         this.updateProgress();
