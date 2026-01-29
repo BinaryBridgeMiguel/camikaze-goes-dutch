@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Camikaze Goes Dutch 🇳🇱</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Apprends le néerlandais de manière amusante avec Camikaze Goes Dutch!">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Camikaze Dutch">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Camikaze Goes Dutch">
+    <meta name="msapplication-TileColor" content="#FF6B35">
+    <meta name="msapplication-TileImage" content="assets/icons/icon-144.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-72.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-192.png">
+    
+    <!-- Splash Screens for iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-startup-image" href="assets/icons/icon-512.png">
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-content">
+            <div class="logo-container">
+                <span class="logo-emoji">🇳🇱</span>
+                <h1>Camikaze Goes Dutch</h1>
+                <p class="tagline">Leer Nederlands op een leuke manier!</p>
+            </div>
+            <button class="btn btn-primary btn-large" onclick="app.startApp()">
+                C'est parti ! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="screen">
+        <header class="dashboard-header">
+            <div class="user-info">
+                <span class="user-avatar">🦊</span>
+                <div class="user-stats">
+                    <span class="username">Camikaze</span>
+                    <div class="level-badge">
+                        <span class="level-icon">⭐</span>
+                        <span id="user-level">Niveau 1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item streak">
+                    <span class="stat-icon">🔥</span>
+                    <span id="streak-count">0</span>
+                </div>
+                <div class="stat-item xp">
+                    <span class="stat-icon">💎</span>
+                    <span id="total-xp">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="xp-progress-container">
+            <div class="xp-progress-bar">
+                <div id="xp-progress" class="xp-progress-fill"></div>
+            </div>
+            <span id="xp-to-next" class="xp-text">0 / 100 XP</span>
+        </div>
+
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="lessons" onclick="app.switchTab('lessons')">
+                <span>📚</span> Leçons
+            </button>
+            <button class="tab-btn" data-tab="practice" onclick="app.switchTab('practice')">
+                <span>🎯</span> Pratique
+            </button>
+            <button class="tab-btn" data-tab="flashcards" onclick="app.switchTab('flashcards')">
+                <span>🃏</span> Cartes
+            </button>
+            <button class="tab-btn" data-tab="stats" onclick="app.switchTab('stats')">
+                <span>📊</span> Stats
+            </button>
+        </nav>
+
+        <!-- Lessons Tab -->
+        <div id="lessons-tab" class="tab-content active">
+            <h2 class="section-title">Choisis un thème 🎨</h2>
+            <div id="theme-grid" class="theme-grid">
+                <!-- Themes will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Practice Tab -->
+        <div id="practice-tab" class="tab-content">
+            <h2 class="section-title">Entraînement rapide ⚡</h2>
+            <div class="practice-options">
+                <button class="practice-card" onclick="app.startPractice('weak')">
+                    <span class="practice-icon">🎯</span>
+                    <span class="practice-title">Points faibles</span>
+                    <span class="practice-desc">Révise ce qui est difficile</span>
+                </button>
+                <button class="practice-card" onclick="app.startPractice('random')">
+                    <span class="practice-icon">🎲</span>
+                    <span class="practice-title">Mix aléatoire</span>
+                    <span class="practice-desc">Un peu de tout!</span>
+                </button>
+                <button class="practice-card" onclick="app.startPractice('grammar')">
+                    <span class="practice-icon">📝</span>
+                    <span class="practice-title">Grammaire</span>
+                    <span class="practice-desc">Verbes & structure</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Flashcards Tab -->
+        <div id="flashcards-tab" class="tab-content">
+            <h2 class="section-title">Cartes mémoire 🃏</h2>
+            <div id="flashcard-themes" class="theme-grid small">
+                <!-- Flashcard themes populated by JS -->
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats-tab" class="tab-content">
+            <h2 class="section-title">Tes progrès 📈</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-card-icon">🔥</span>
+                    <span id="stats-streak" class="stat-card-value">0</span>
+                    <span class="stat-card-label">jours de suite</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-icon">💎</span>
+                    <span id="stats-xp" class="stat-card-value">0</span>
+                    <span class="stat-card-label">XP total</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-icon">✅</span>
+                    <span id="stats-completed" class="stat-card-value">0</span>
+                    <span class="stat-card-label">exercices</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card-icon">🎯</span>
+                    <span id="stats-accuracy" class="stat-card-value">0%</span>
+                    <span class="stat-card-label">précision</span>
+                </div>
+            </div>
+            <div class="achievements-section">
+                <h3>Badges 🏆</h3>
+                <div id="achievements-grid" class="achievements-grid">
+                    <!-- Achievements populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Screen -->
+    <div id="lesson-screen" class="screen">
+        <header class="lesson-header">
+            <button class="btn-icon" onclick="app.exitLesson()">✕</button>
+            <div class="lesson-progress-container">
+                <div class="lesson-progress-bar">
+                    <div id="lesson-progress" class="lesson-progress-fill"></div>
+                </div>
+            </div>
+            <div class="lesson-hearts">
+                <span id="hearts-display">❤️❤️❤️</span>
+            </div>
+        </header>
+
+        <div id="exercise-container" class="exercise-container">
+            <!-- Exercise content will be loaded here -->
+        </div>
+
+        <div id="feedback-container" class="feedback-container hidden">
+            <div id="feedback-content" class="feedback-content">
+                <!-- Feedback will appear here -->
+            </div>
+            <button id="continue-btn" class="btn btn-primary btn-large" onclick="exercises.nextExercise()">
+                Continuer
+            </button>
+        </div>
+    </div>
+
+    <!-- Flashcard Screen -->
+    <div id="flashcard-screen" class="screen">
+        <header class="lesson-header">
+            <button class="btn-icon" onclick="app.exitFlashcards()">✕</button>
+            <div class="flashcard-counter">
+                <span id="flashcard-progress">1 / 10</span>
+            </div>
+            <div class="flashcard-streak">
+                <span>🔥</span>
+                <span id="flashcard-streak">0</span>
+            </div>
+        </header>
+
+        <div class="flashcard-container">
+            <div id="flashcard" class="flashcard" onclick="flashcards.flipCard()">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <span id="flashcard-front-text">Mot</span>
+                        <button class="btn-speak" onclick="event.stopPropagation(); flashcards.speak('front')">🔊</button>
+                    </div>
+                    <div class="flashcard-back">
+                        <span id="flashcard-back-text">Traduction</span>
+                        <button class="btn-speak" onclick="event.stopPropagation(); flashcards.speak('back')">🔊</button>
+                    </div>
+                </div>
+            </div>
+            <p class="flashcard-hint">Clique pour retourner la carte</p>
+        </div>
+
+        <div class="flashcard-buttons">
+            <button class="btn btn-danger" onclick="flashcards.rateCard('hard')">
+                😓 Difficile
+            </button>
+            <button class="btn btn-warning" onclick="flashcards.rateCard('medium')">
+                🤔 Moyen
+            </button>
+            <button class="btn btn-success" onclick="flashcards.rateCard('easy')">
+                😎 Facile
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="results-content">
+            <div id="results-animation" class="results-animation">🎉</div>
+            <h1 id="results-title">Super travail!</h1>
+            <p id="results-subtitle" class="results-subtitle">Tu as terminé cette leçon!</p>
+            
+            <div class="results-stats">
+                <div class="result-stat">
+                    <span class="result-icon">💎</span>
+                    <span id="result-xp" class="result-value">+0</span>
+                    <span class="result-label">XP gagnés</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-icon">🎯</span>
+                    <span id="result-accuracy" class="result-value">0%</span>
+                    <span class="result-label">précision</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-icon">⏱️</span>
+                    <span id="result-time" class="result-value">0:00</span>
+                    <span class="result-label">temps</span>
+                </div>
+            </div>
+
+            <div id="level-up-banner" class="level-up-banner hidden">
+                <span class="level-up-icon">⭐</span>
+                <span>Niveau supérieur!</span>
+            </div>
+
+            <div class="results-buttons">
+                <button class="btn btn-secondary" onclick="app.goToDashboard()">
+                    Retour au menu
+                </button>
+                <button class="btn btn-primary" onclick="app.continueLesson()">
+                    Continuer 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="data/lessons.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/gamification.js"></script>
+    <script src="js/exercises.js"></script>
+    <script src="js/flashcards.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                        scope: '/'
+                    });
+                    console.log('🇳🇱 Service Worker registered:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                if (confirm('Une nouvelle version est disponible! Recharger?')) {
+                                    newWorker.postMessage('skipWaiting');
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.log('Service Worker registration failed:', error);
+                }
+            });
+            
+            // Handle controller change (new SW activated)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+            });
+        }
+        
+        // Install prompt handling
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button after a delay (not on first visit)
+            const data = localStorage.getItem('camikaze_dutch_progress');
+            if (data) {
+                setTimeout(() => {
+                    showInstallPrompt();
+                }, 5000);
+            }
+        });
+        
+        function showInstallPrompt() {
+            if (!deferredPrompt) return;
+            
+            // Create install banner
+            const banner = document.createElement('div');
+            banner.id = 'install-banner';
+            banner.innerHTML = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    left: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #FF6B35, #E91E63);
+                    color: white;
+                    padding: 16px 20px;
+                    border-radius: 16px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    z-index: 10000;
+                    font-family: 'Nunito', sans-serif;
+                ">
+                    <span style="font-size: 32px;">📱</span>
+                    <div style="flex: 1;">
+                        <strong style="display: block;">Installe l'app!</strong>
+                        <span style="font-size: 14px; opacity: 0.9;">Apprends hors-ligne, comme une vraie app</span>
+                    </div>
+                    <button onclick="installApp()" style="
+                        background: white;
+                        color: #FF6B35;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        cursor: pointer;
+                    ">Installer</button>
+                    <button onclick="dismissInstall()" style="
+                        background: transparent;
+                        color: white;
+                        border: none;
+                        font-size: 20px;
+                        cursor: pointer;
+                        padding: 5px;
+                    ">✕</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+        }
+        
+        async function installApp() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('App installed!');
+                gamification.showToast('success', '📱', 'App installée! Retrouve-la sur ton écran d\'accueil');
+            }
+            
+            deferredPrompt = null;
+            dismissInstall();
+        }
+        
+        function dismissInstall() {
+            const banner = document.getElementById('install-banner');
+            if (banner) banner.remove();
+        }
+        
+        // Handle app installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            deferredPrompt = null;
+            gamification.showToast('success', '🎉', 'Camikaze Goes Dutch est installé!');
+        });
+        
+        // Handle URL params for shortcuts
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        if (mode === 'practice') {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    app.startApp();
+                    app.switchTab('practice');
+                }, 100);
+            });
+        } else if (mode === 'flashcards') {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    app.startApp();
+                    app.switchTab('flashcards');
+                }, 100);
+            });
+        }
+    </script>
+</body>
+</html>
