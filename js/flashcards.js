@@ -11,7 +11,7 @@ const flashcards = {
     sessionStreak: 0,
     
     // Start flashcard session
-    start(themeId) {
+    async start(themeId) {
         this.currentTheme = themeId;
         this.currentIndex = 0;
         this.sessionStreak = 0;
@@ -21,8 +21,8 @@ const flashcards = {
         const vocab = VOCABULARY[themeId] || [];
         
         // Check for cards due for review (spaced repetition)
-        const dueCards = storage.getDueFlashcards(themeId);
-        const dueCardIds = new Set(dueCards.map(c => c.id));
+        const dueCards = await storage.getDueFlashcards(themeId);
+        const dueCardIds = new Set((dueCards || []).map(c => c.id));
         
         // Mix due cards with new cards
         this.cards = vocab.map(word => ({
